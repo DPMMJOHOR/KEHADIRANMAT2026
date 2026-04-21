@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPMM Johor - MAT 2026 Invitation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .meeting-info {
+            background: white;
+            margin: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .meeting-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .meeting-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h4 {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .controls {
+            background: white;
+            padding: 15px;
+            margin: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-secondary { background: #718096; color: white; }
+        .btn-danger { background: #f56565; color: white; }
+
+        .contacts-list { padding: 15px; }
+
+        .contact-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 5px solid #e2e8f0;
+        }
+
+        .contact-card.yes { border-left-color: #48bb78; background: #c6f6d5; }
+        .contact-card.no { border-left-color: #fc8181; background: #fed7d7; }
+        .contact-card.contacted { border-left-color: #bee3f8; background: #f0f4ff; }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .contact-name { font-weight: 700; font-size: 1.1rem; color: #2d3748; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-not-contacted { background: #e2e8f0; color: #4a5568; }
+        .status-contacted { background: #bee3f8; color: #2b6cb0; }
+        .status-yes { background: #48bb78; color: white; }
+        .status-no { background: #f56565; color: white; }
+
+        .contact-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .template-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .template-item:hover { background: #f0f4ff; }
+        .template-item.active { border: 2px solid #667eea; background: #f0f4ff; }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            min-height: 150px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📱 DPMM Johor - MAT 2026</h1>
+        <p>Sistem Pengurusan Jemputan Mesyuarat Agung Tahunan</p>
+    </div>
+
+    <div class="meeting-info">
+        <h3>📅 Mesyuarat Agung Tahunan DPMM Johor 01/2026</h3>
+        <p><strong>Tarikh:</strong> 25 April 2026 (Sabtu)</p>
+        <p><strong>Masa:</strong> 2.00 Petang</p>
+        <p><strong>Tempat:</strong> Tanjong Puteri Golf Resort, Pasir Gudang</p>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card"><h4 id="totalContacts">0</h4><p>Jumlah Ahli</p></div>
+        <div class="stat-card"><h4 id="contactedCount">0</h4><p>Dihubungi</p></div>
+        <div class="stat-card"><h4 id="yesCount">0</h4><p>✅ Hadir</p></div>
+        <div class="stat-card"><h4 id="noCount">0</h4><p>❌ Tidak</p></div>
+    </div>
+
+    <div class="controls">
+        <div class="filter-group">
+            <label>🔍 Cari Ahli:</label>
+            <input type="text" id="searchInput" placeholder="Nama, syarikat atau no ahli...">
+        </div>
+        <div class="filter-group">
+            <label>📍 Filter Daerah:</label>
+            <select id="daerahFilter"><option value="all">Semua Daerah</option></select>
+        </div>
+        <button class="btn btn-primary" onclick="openTemplateModal()">📋 Urus Template WhatsApp</button>
+        <button class="btn btn-warning" onclick="exportData()">📥 Export Data RSVP</button>
+    </div>
+
+    <div class="contacts-list" id="contactsList"></div>
+
+    <div id="templateModal" class="modal">
+        <div class="modal-content">
+            <h2>📋 Urus Template WhatsApp</h2>
+            <hr style="margin: 15px 0;">
+            
+            <div id="templateList"></div>
+
+            <div style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px;">
+                <h3>➕ Tambah Template Baru</h3>
+                <input type="text" id="newTemplateName" placeholder="Nama Template (cth: Follow Up 1)" style="width:100%; padding:10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;">
+                <textarea id="newTemplateContent" placeholder="Gunakan {NAMA}, {SYARIKAT}, {NO_AHLI}"></textarea>
+                <button class="btn btn-success" onclick="addNewTemplate()">Simpan Template Baru</button>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="closeModal('templateModal')" style="margin-top: 10px;">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        const csvData = `No.Ahli,Jawatan,Nama Syarikat,Nama PIC,No.HP,Emel,Daerah,Fasal,Status,Yuran 2026
+J895,YDP,YDK PROSPER TECH,YAZID BIN KHALID,60197286069,ydk7431@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J1131,TYDP,PERCETAKAN BUMI RESTU SDN BHD,MUHAMMED FARHAN BIN P.A.M. BASHEER AHAMED,60192247786,farhanbasheer@gmail.com,Johor Bahru,6.2.4,SB,BAYAR
+J1110,AJK,HI-SAM EDAR,HISHAM B. KUCHIMON,60197767225,hisamedar@gmail.com,Segamat,6.2.1,ENT,BELUM
+J889,AJK,ZACK CONSTRUCTION & ENTERPRISE,ZOLKEFLI B. MOHD NOOR,60197767225,zackconstruction01@gmail.com,Kluang,6.2.1,ENT,BELUM
+J1746,AJK,QES MANAGEMENT CONSULTANTS SDN BHD,KHAIRIL ANWAR B. RAZALI,60127783462,sysmc2000@yahoo.com,Johor Bahru,6.2.4,SB,BELUM
+J1757,BK,HN ENTERPRISE,MOHAMAD NASHRU HAKIM B. AB HAMID,60192880148,hnenterprise.co@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J1928,AHLI,ANUGERAH KRAF GALLERIA,HALEDA AQILA NASIS,60197870121,bateqila@gmail.com,Pontian,6.2.1,ENT,BELUM
+J1933,AHLI,ROZAROSE CREATIVE ENTERPRISE,ROZANA BTE RAHMAT,60126106420,rozana.tbg@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J1940,AHLI,MR DIECASTER NETWORK,SHAIKH MOHAMAD FAREED BIN P.A.M. BASHEER AHAMED,601151647694,ayeed88@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J1663,AHLI,MEDINA CREATION,IEZAN SHAFILA BINTI KAMARUDIN,60103417786,,Johor Bahru,6.2.1,ENT,BAYAR
+J1941,AHLI,BASHEERS CREATIVE MARKETING,MUHAMMAD FAREEQ DANISH BIN MUHAMMED FARHAN,60192296786,,Johor Bahru,6.2.1,ENT,BAYAR
+J178(B500),AJK,PERCETAKAN PESTA SDN BHD,SYED SUFI BIN SYED SALIM,60166650465,pestasb@gmail.com,Muar,6.2.4,SB,BELUM
+J1419,AHLI,ZUBIR FOOD SDN BHD,DATO' SERI ZUBIR BIN MOHD SAID,60167167373,,Johor Bahru,6.2.4,SB,BELUM
+J1210,AJK,MISI CEMERLANG SDN BHD,KAMARUZAMAN BIN PADALILAH,60127185515,misicemerlangsdnbhd@gmail.com,Kluang,6.2.4,SB,BELUM
+J1211,AHLI,KEMAS CANGGIH SDN BHD,WAN MOHD KHIR BIN MOHD ZIN,60127997550,,Kluang,6.2.4,SB,BELUM
+J1890,AHLI,JERANG BELANGA ENTERPRISE,SHAARUL ZAMAN BIN KAMARUL ZAMAN,60146717710,,Kluang,6.2.1,ENT,BELUM
+J1772,AHLI,PERNIAGAAN P.A. SALAM,MOHAMED IYOOB BIN ABDUL SALAM,60177083863,,Kluang,6.2.1,ENT,BELUM
+J1815,AHLI,HIZECK ENTERPRISE,HAMIMAH BINTI ADON,60197679769,,Kluang,6.2.1,ENT,BELUM
+J1901,AHLI,DAMAI OPTOMETRY CENTER,ROZALINA AYU BINTI ISHAK,60123684891,,Kluang,6.2.1,ENT,BELUM
+J1906,AHLI,SYASANA ENTERPRISE,MOHD ESA BIN JAMALUDDIN,60137602500,,Kluang,6.2.1,ENT,BELUM
+J1896,AHLI,PERUSAHAAN MAKANAN ANI,NORBAINI BINTI AZIZAN,60127994021,,Kluang,6.2.1,ENT,BELUM
+J1907,AHLI,KEDAI MAKAN KAK ESAH,MUHAMMAD LATIF BIN OSMAN,60177799440,,Kluang,6.2.1,ENT,BELUM
+J1908,AHLI,SALBIAH BINTI ATAN,SALBIAH BINTI ATAN,60103052066,,Kluang,6.2.1,ENT,BELUM
+J1251,AJK,AFAA ENTERPRISE,AHMAD FAIZ BIN ABD AZIZ,60127334107,ahmadfaiz_aziz@yahoo.com,Segamat,6.2.1,ENT,BAYAR
+J1452,AJK,AK MAJU RESOURCES,NOOR AZAM BIN KHALID,60122218224,akmaju.azamkhalid@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J1747,AHLI,ABIYI ENTERPRISE,D'ZURINA BINTI D'ZULKARNAIN,60197466668,zurinazaid@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J1936,AHLI,GOLDEN TROOP EMPIRE ,MOHD ZULKARNAIN BIN KAMUN,60167474724,,Johor Bahru,6.2.1,ENT,BELUM
+J2000,AHLI,ZALI RESOURCES,GHAZALI BIN AHMAD,60136756990,zali96@yahoo.com,Segamat,6.2.1,ENT,BELUM
+J2001,NYDP,ARIEZAM BEVERAGES SDN.BHD,MOHD NIZAM BIN KAMAL,60193336958,nizamkamal@fajarterbina.com,Johor Bahru,6.2.4,SB,BELUM
+J2002,AHLI,MICROCLEAR SDN BHD,IFNU HAKIM BIN ABDUL RAFOR,,,Johor Bahru,6.2.4,SB,BELUM
+J2003,AHLI,TUKANG BINA ENTERPRISE ,MOHD SYAHRUL SYAHID BIN MOHD SALLEH,60107690756,msyahrulsyahid@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2004,AJK,KELINA SERVICES & SUPPLY,ARIF FAIZAL BIN MOHAMAD ZAWAWI,601163686709,arepfaizal@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2005,AHLI,KUNTUM & BREW (J1513),ADZLINA BINTI IBRAHIM,60123440776,kuntumbrew@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2006,AHLI,SB MEDIA CREATIVE RESOURCES (J1752),MIOR SYAFAIRUL RIZAL BIN MIOR BAHAROM,60197870121,syafairul@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2007,AHLI,TRIAD ENERGY ENTERPRISE (J659) ,MOHD FUDRAJI BIN AHMAD,60137755770,,Batu Pahat,6.2.1,ENT,BELUM
+J2008,AHLI,FROZ ZOLUTION,RASDAN BIN RAOB,60187623766,rustdone@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2009,AHLI,JOHO MEDIA RESOURCES,RAZALI BIN MOHD BAHAR SARI,601110760616,zaleysmbs@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2010,AHLI,DARUL ULOOM HISHAMUDDIN RESOURCES,MUHAMMAD HISHAMMUDDIN BIN ZAINUDIN,60197237296,mavenperfume69@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2011,AHLI,NORMALA JOHAR,NORMALA JOHAR,60105155086,normalajohornj@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2012,AHLI,SAFRI RESTU ENTERPRISE,MOHAMAD SAFRI BIN SAMAD,60137115786,liliysafri052@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2013,AHLI,GENIUS ASPIRASI ENTERPRISE,MOHD ANUAR BIN SAMAD,60127738220,mdanuar.samad74@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2014,AHLI,FA BAKTI CENTRE,MUHAMAD FAIZAL BIN SAYEED,60137848633,fabakticentre@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2015,AHLI,BISMI ENTERPRISE,SAIFFUL AZHAR BIN KASIM,60182184047,saiffulazharkasim@icloud.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2016,AHLI,DMUAFAKAT ENTERPRISE,MOHAMAD NOR ZAKI BIN KHAMIS,60189442116,sumberpangan.ssb@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2017,SU,NOVAREAD EMPIRE,MUHAMMAD FARIHAN MUSTAFFA,60146118510,artwork.mfm@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2018,AHLI,GEO SENSE SDN BHD,ISMAIL BIN IBRAHIM ,60197266411,,Johor Bahru,6.2.4,SB,BELUM
+J2019,AHLI,JUTA MEKAR ENTERPRISE,MOHAMAD NAJIB BIN MUSTAFA,60122235899,admin@jutamekar.co,Segamat,6.2.1,ENT,BAYAR
+J2020,AHLI,KHAIR IZ DESIGN,KHAIRULIZWAN BIN ZA'BA,60189866236,khairizdesign57@gmail.com,Johor Bahru,6.2.1,ENT,BELUM
+J2021,AHLI,LEGASI ANAK ZIMA,FATHIATUN,60169622099,,Johor Bahru,6.2.1,ENT,BAYAR
+J2022,AHLI,SWIFT FLEX SOLUTION,SITI FATIMAH BTE ALI,60137161506,swiftflex.artwork@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J2023,AHLI,NS NIAGA RESOURCES,SITI AISHAH BINTI PAIMAN,60127074845,nsniagaresources99@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J2024,AHLI,AS ALFA LEGACY,MOHD AL HAFIZ BIN AZAHAR,60127948103,asalfalegacy@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J2025,AHLI,A.MOUS SERVICE,ABDULLAH OMAR BIN ABD AZIZ,60122628076,A.mousprinting@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J2026,AHLI,CHEF EAT CATERING AND SERVICES,MUHAMMAD SYAFIQ BIN JAAFAR,60177017213,chefeat23@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2027,AHLI,HANG OUT SERVICES SDN BHD,MOHD RIZALUDDIN BIN MOHD SALLEH,60127415001,,Pontian,6.2.4,SB,BAYAR
+J2028,AHLI,IKTIKAD NK ENTERPRISE,MOHD NAZIR BIN KAMAL,60137790033,iktikadnk@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2029,AHLI,E & E RESOURCES,MOHD ZAIDI BIN MD RIFIN,60197334882,eeresources20@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2030,AHLI,LINGKARAN PRO RESOURCES,NAZHAN BIN FACKEER MOHAMAD,601124356966,lingkaranproresources@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2031,AHLI,FR JUARA PERKASA ENTERPRISE,MUHAMAD FAIZ AKMAL BIN RUSLI,60177999818,,Johor Bahru,6.2.1,ENT,BAYAR
+J2032,AHLI,YK PROSPER SDN BHD,NUR IZZAH BINTI YAZID,6073512507,ydk7431@gmail.com,Johor Bahru,6.2.4,SB,BELUM
+J2033,AHLI,MSR SUPPLY RESOURCES,FATIN ASYIQIN BINTI MOHD SAHIDIN,60189698490,msrprint20@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J2034,AHLI,PERNIAGAAN SERI PENGKALAN,MOHD ZAHID BIN MOHAMED DOL,60197287213,kacaptelabik@gmail.com,Segamat,6.2.1,ENT,BAYAR
+J2035,AHLI,TRAINTRIBUTE PLT,NORSYAHIRAH BINTI ISMAIL,60127670155,traintributeplt@gmail.com,Johor Bahru,6.2.4,SB,BAYAR
+J2036,AHLI,YF GLOBAL RESOURCES,MOHAMAD FARID BIN ZAINOL ABIDIN,60197471903,faridzainolabidin.84@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2037,AHLI,PERUSAHAAN MAJU SERI KOTA ENTERPRISE,MOHD NIZAM BIN MOHD SAAD,60177894614,mnizam.saad@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2038,AHLI,ADK VENTURE,KHALIZA BT IBRAHIM,60137257912,khalezaliza.77@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2039,AHLI,E'DEE TRADING,NURULHUDA BT MD SALLEH,60127532386,nurulhuda76@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2040,AHLI,MRA JAYA ENTERPRISE,MOHAMAD RAMZAN BIN ALI,60127415446,shukorali8080@gmail.com,Muar,6.2.1,ENT,BAYAR
+J2041,AHLI,MRE AL-MUBAARAKAH VENTURE,MOHD RIZUAN BIN EBRAHIM,601135728860,mreventuresb@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2042,AHLI,ZAREEN EXCELLENT CAREER SDN BHD,HASMAH BINTI MOHAMMAD,60127116543,hasmahhaji@gmail.com,Johor Bahru,6.2.4,SB,BAYAR
+J2043,AHLI,BINA JAYA MEGAH ENTERPRISE,NORDANI BIN ATAN,60127181604,nordanibnatan@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2044,AHLI,AZS SOLUTION,SITI ZAINAB BT ALIAS,60137446545,ctzainabal@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2045,AHLI,NADI INSAN TRAINING AND SERVICES,ZURIDAH BINTI MOHD SHAFIE,60127616147,nadiinsan.training@gmail.com,Johor Bahru,6.2.1,ENT,BAYAR
+J2046,AHLI,LUMAYAN EMPIRE GROUP SDN BHD,MOHAMAD KHANAFI BIN BASRI,60127435306,khanafibasri@gmail.com,Pontian,6.2.4,SB,BAYAR
+J2047,AHLI,ASR KOTA TRADING,SITI ROHAYU BINTI MD SHAH,60167679696,,Pontian,6.2.1,ENT,BAYAR
+J2048,AHLI,IWAN SINAR ENTERPRISE,MOHD HAIRUL AZWANN BIN MOHD SAAT,60137626012,iwansinarenterprise@gmail.com,Pontian,6.2.1,ENT,BAYAR
+J2049,AHLI,MENTARI SELATAN GLOBAL,MOHAMAD FAHMI BIN SAPARI ,,,Pontian,6.2.1,ENT,BAYAR
+J2050,AHLI,AHMAD KHUSAIRI BIN MOHD RAMELI,AHMAD KHUSAIRI BIN MOHD RAMELI,,,Kota Tinggi,6.2.1,ENT,BAYAR
+J2051,AHLI,AA FIRE PROTECTION,AZIZI BIN AZIZ,60177425371,,Kluang,6.2.1,ENT,BELUM
+J2052,AHLI,MAZON FURNITURE,MOHD FAIZAL BIN AZLAN,60127519612,,Kluang,6.2.1,ENT,BELUM
+J2053,AHLI,SYARIKAT PEMBEKALAN SINAR BARU,AZMI BIN OTHMAN ,60177828030,,Kluang,6.2.1,ENT,BELUM
+J2054,AHLI,DEE SR TRAVEL & TOUR SDN BHD,MUHAMMAD RAZALI BIN ISMAIL,60127776974,deesrtravel74@gmail.com,Kluang,6.2.4,SB,BELUM`;
+
+        let contacts = [];
+        let templates = [
+            {
+                id: 'default',
+                name: 'Jemputan Rasmi MAT 2026',
+                content: `JEMPUTAN RASMI: MESYUARAT AGUNG TAHUNAN DEWAN PERNIAGAAN MELAYU MALAYSIA NEGERI JOHOR 2026
+
+Assalamualaikum {NAMA},
+
+DPMM Negeri Johor akan mengadakan Mesyuarat Agung Tahunan dengan ketetapan berikut:-
+
+Tarikh: 25 April 2026 (Sabtu)
+Masa: 2.00 Petang
+Tempat: Tanjong Puteri Golf Resort, Pasir Gudang
+
+Butiran Keahlian: {SYARIKAT} 
+Nombor ahli : {NO_AHLI}
+
+DOKUMEN & TINDAKAN:
+Sila layari pautan mengikut keperluan berikut:
+
+1️⃣ Notis Mesyuarat:
+🔗 https://drive.google.com/file/d/1tEQZKqTFb9icuB-gKQ47PpG76HqGx42S/view?usp=sharing
+
+2️⃣ Akuan Berkanun (Syarikat Enterprise/Sole Prop):
+🔗 https://drive.google.com/file/d/1s35WMrH2EtmN3m4QtzvZN2q8yyp5jwEo/view?usp=sharing
+
+3️⃣ Borang Proksi (Sdn Bhd / Perkongsian):
+🔗 https://drive.google.com/file/d/1TfQi5opIIYiB-Z5MLAuS8ps2HsSNmf06/view?usp=sharing
+
+Tindakan Segera: Sila lengkapkan salah satu dari borang yang dilampirkan mengikut jenis syarikat anda.
+
+Nota Penting: Dokumen fizikal yang asal hendaklah dibawa dan diserahkan di kaunter pendaftaran pada hari mesyuarat untuk rekod rasmi.
+
+Tunaikan tanggungjawab anda sebagai ahli Dewan Perniagaan Melayu Malaysia Negeri Johor dengan hadir ke Mesyuarat ini.
+
+UrusSetia Dewan Perniagaan Melayu Malaysia Negeri Johor 2026`
+            }
+        ];
+        let activeTemplateId = 'default';
+
+        function init() {
+            contacts = parseCSV(csvData);
+            loadTemplates();
+            populateFilters();
+            renderContacts();
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            const headers = lines[0].split(',');
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i]) continue;
+                const obj = {};
+                const currentline = lines[i].split(',');
+                headers.forEach((header, index) => {
+                    obj[header.trim()] = currentline[index] ? currentline[index].trim() : '';
+                });
+                result.push(obj);
+            }
+            return result;
+        }
+
+        function loadTemplates() {
+            const stored = localStorage.getItem('dpmm_templates');
+            if (stored) templates = JSON.parse(stored);
+            const active = localStorage.getItem('dpmm_active_template');
+            if (active) activeTemplateId = active;
+        }
+
+        function saveTemplates() {
+            localStorage.setItem('dpmm_templates', JSON.stringify(templates));
+            localStorage.setItem('dpmm_active_template', activeTemplateId);
+        }
+
+        function addNewTemplate() {
+            const name = document.getElementById('newTemplateName').value;
+            const content = document.getElementById('newTemplateContent').value;
+            if (!name || !content) return alert('Sila isi nama dan kandungan template!');
+            
+            const newT = { id: Date.now().toString(), name, content };
+            templates.push(newT);
+            saveTemplates();
+            renderTemplateList();
+            document.getElementById('newTemplateName').value = '';
+            document.getElementById('newTemplateContent').value = '';
+            alert('Template baru berjaya ditambah!');
+        }
+
+        function deleteTemplate(id, e) {
+            e.stopPropagation();
+            if (id === 'default') return alert('Template asal tidak boleh dibuang.');
+            if (confirm('Padam template ini?')) {
+                templates = templates.filter(t => t.id !== id);
+                if (activeTemplateId === id) activeTemplateId = 'default';
+                saveTemplates();
+                renderTemplateList();
+            }
+        }
+
+        function selectTemplate(id) {
+            activeTemplateId = id;
+            saveTemplates();
+            renderTemplateList();
+        }
+
+        function renderTemplateList() {
+            const list = document.getElementById('templateList');
+            list.innerHTML = templates.map(t => `
+                <div class="template-item ${t.id === activeTemplateId ? 'active' : ''}" onclick="selectTemplate('${t.id}')">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong>${t.name}</strong>
+                        ${t.id !== 'default' ? `<button class="btn-danger" style="width:auto; padding:4px 10px; font-size:12px; margin:0;" onclick="deleteTemplate('${t.id}', event)">Padam</button>` : '<span style="font-size:10px; color:green;">DEFAULT</span>'}
+                    </div>
+                    <p style="font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:5px;">${t.content.substring(0, 100)}...</p>
+                </div>
+            `).join('');
+        }
+
+        function openTemplateModal() {
+            renderTemplateList();
+            document.getElementById('templateModal').style.display = 'block';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function populateFilters() {
+            const daerahs = [...new Set(contacts.map(c => c.Daerah))].sort();
+            const filter = document.getElementById('daerahFilter');
+            daerahs.forEach(d => {
+                if(d) filter.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+
+        function getStatus(noAhli) {
+            return JSON.parse(localStorage.getItem(`status_${noAhli}`)) || { status: 'not_contacted' };
+        }
+
+        function updateStatus(noAhli, status) {
+            localStorage.setItem(`status_${noAhli}`, JSON.stringify({ status }));
+            renderContacts();
+        }
+
+        function renderContacts() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const daerah = document.getElementById('daerahFilter').value;
+            
+            const filtered = contacts.filter(c => {
+                const matchSearch = c['Nama PIC'].toLowerCase().includes(search) || c['Nama Syarikat'].toLowerCase().includes(search) || c['No.Ahli'].toLowerCase().includes(search);
+                const matchDaerah = daerah === 'all' || c.Daerah === daerah;
+                return matchSearch && matchDaerah;
+            });
+
+            document.getElementById('totalContacts').textContent = contacts.length;
+            
+            let contacted = 0, yes = 0, no = 0;
+            contacts.forEach(c => {
+                const info = getStatus(c['No.Ahli']);
+                if (info.status !== 'not_contacted') contacted++;
+                if (info.status === 'yes') yes++;
+                if (info.status === 'no') no++;
+            });
+            document.getElementById('contactedCount').textContent = contacted;
+            document.getElementById('yesCount').textContent = yes;
+            document.getElementById('noCount').textContent = no;
+
+            const container = document.getElementById('contactsList');
+            container.innerHTML = filtered.map(c => {
+                const info = getStatus(c['No.Ahli']);
+                const statusText = info.status === 'not_contacted' ? 'Belum Dihubungi' : 
+                                 info.status === 'contacted' ? 'Sudah Dihubungi' :
+                                 info.status === 'yes' ? 'Hadir' : 'Tidak Hadir';
+                return `
+                    <div class="contact-card ${info.status}">
+                        <div class="contact-header">
+                            <div>
+                                <div class="contact-name">${c['Nama PIC']}</div>
+                                <div style="font-size:0.8rem; color:#666;">${c['Nama Syarikat']}</div>
+                            </div>
+                            <span class="status-badge status-${info.status.replace('_','-')}">${statusText}</span>
+                        </div>
+                        <div style="font-size:0.9rem; color:#555;">
+                            🆔 ID: ${c['No.Ahli']} | 📍 Daerah: ${c.Daerah} | 📞 HP: ${c['No.HP']}
+                        </div>
+                        <div class="contact-actions">
+                            <button class="btn btn-primary" onclick="sendWA('${c['No.Ahli']}', '${c['No.HP']}', '${c['Nama PIC']}', '${c['Nama Syarikat']}')">💬 WhatsApp</button>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn btn-success" onclick="updateStatus('${c['No.Ahli']}', 'yes')">✅ Hadir</button>
+                                <button class="btn btn-warning" onclick="updateStatus('${c['No.Ahli']}', 'no')">❌ Tidak</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function sendWA(noAhli, phone, name, company) {
+            const t = templates.find(temp => temp.id === activeTemplateId) || templates[0];
+            let msg = t.content
+                .replace(/{NAMA}/g, name)
+                .replace(/{SYARIKAT}/g, company)
+                .replace(/{NO_AHLI}/g, noAhli);
+            
+            let cleanPhone = phone.replace(/\D/g, '');
+            if(!cleanPhone.startsWith('6')) cleanPhone = '6' + cleanPhone;
+            
+            updateStatus(noAhli, 'contacted');
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function exportData() {
+            let csv = 'No.Ahli,Syarikat,PIC,Daerah,No.HP,Status RSVP\n';
+            contacts.forEach(c => {
+                csv += `"${c['No.Ahli']}","${c['Nama Syarikat']}","${c['Nama PIC']}","${c.Daerah}","${c['No.HP']}","${getStatus(c['No.Ahli']).status}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RSVP_DPMM_JOHOR_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderContacts);
+        document.getElementById('daerahFilter').addEventListener('change', renderContacts);
+
+        init();
+    </script>
+</body>
+</html>
